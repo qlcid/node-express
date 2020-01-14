@@ -1,10 +1,15 @@
 const express = require('express');             // node framework를 사용해 코드를 간단히
 const app = express();
+var bodyParser = require('body-parser');        // node middleware
 var fs = require('fs');
 var template = require('./lib/template.js');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 var qs = require('querystring');
+
+// form data processing
+// request 객체에 body 속성을 만들어줌
+app.use(bodyParser.urlencoded({ extended: false }))
 
 // app.get is for routing
 app.get('/', (req, res) => {
@@ -64,6 +69,7 @@ app.get('/create', (req, res) => {
 })
 
 app.post('/create_process', (req, res) => {
+  /*
   var body = '';
   req.on('data', function(data) {
       body = body + data;
@@ -77,6 +83,14 @@ app.post('/create_process', (req, res) => {
         res.end();
       })
   });
+  */
+ var post = req.body;
+ var title = post.title;
+ var description = post.description;
+ fs.writeFile(`data/${title}`, description, 'utf8', function(err) {
+   res.writeHead(302, { Location: `/?id=${title}` });
+   res.end();
+ });
 })
 
 app.get('/update/:pageId', (req, res) => {
@@ -106,41 +120,29 @@ app.get('/update/:pageId', (req, res) => {
 })
 
 app.post('/update_process', (req, res) => {
-  var body = '';
-  req.on('data', function(data) {
-      body = body + data;
-  });
-  req.on('end', function() {
-      var post = qs.parse(body);
-      var id = post.id;
-      var title = post.title;
-      var description = post.description;
-      fs.rename(`data/${id}`, `data/${title}`, function(err) {
-        fs.writeFile(`data/${title}`, description, 'utf8', function(err) {
-          res.writeHead(302, { Location: `/?id=${title}` });
-          res.end();
-        })
-      });
+  var post = req.body;
+  var id = post.id;
+  var title = post.title;
+  var description = post.description;
+  fs.rename(`data/${id}`, `data/${title}`, function(err) {
+    fs.writeFile(`data/${title}`, description, 'utf8', function(err) {
+      res.writeHead(302, { Location: `/?id=${title}` });
+      res.end();
+    })
   });
 })
 
 app.post('/delete_process', (req, res) => {
-  var body = '';
-  req.on('data', function(data) {
-      body = body + data;
-  });
-  req.on('end', function() {
-      var post = qs.parse(body);
-      var id = post.id;
-      var filteredId = path.parse(id).base;
-      fs.unlink(`data/${filteredId}`, function(err) {
-        /*
-        res.writeHead(302, { Location: `/` });
-        res.end();
-        */
-       res.redirect(`/`);
-      })
-  });
+  var post = req.body;
+  var id = post.id;
+  var filteredId = path.parse(id).base;
+  fs.unlink(`data/${filteredId}`, function(err) {
+    /*
+    res.writeHead(302, { Location: `/` });
+    res.end();
+    */
+    res.redirect(`/`);
+  })
 })
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
