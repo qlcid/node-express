@@ -3,6 +3,7 @@ const app = express();
 var fs = require('fs');
 var template = require('./lib/template.js');
 
+// app.get is for routing
 app.get('/', (req, res) => {
   fs.readdir('./data', function(error, filelist) {
     var title = 'Welcome';
@@ -15,6 +16,11 @@ app.get('/', (req, res) => {
     res.send(html)
   });
 })
+
+app.get('/page/:pageId', (req, res) => {
+  res.send(req.params)
+})
+
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
 
 /*
