@@ -1,15 +1,15 @@
 const express = require('express');             // node framework를 사용해 코드를 간단히
 const app = express();
-var bodyParser = require('body-parser');        // node middleware
+var bodyParser = require('body-parser');        // node middleware request data의 body로부터 파라미터를 편리하게 추출
+var compression = require('compression');       // node middleware 데이터 압축
 var fs = require('fs');
 var template = require('./lib/template.js');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 var qs = require('querystring');
 
-// form data processing
-// request 객체에 body 속성을 만들어줌
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));    // request 객체에 body 속성을 만들어줌
+app.use(compression());                                 // data 압축
 
 // app.get is for routing
 app.get('/', (req, res) => {
