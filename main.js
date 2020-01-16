@@ -10,6 +10,7 @@ var qs = require('querystring');
 
 app.use(bodyParser.urlencoded({ extended: false }));    // request 객체에 body 속성을 만들어줌
 app.use(compression());                                 // data 압축
+app.use(express.static('public'));                      // static file, express.static('경로') 경로에 있는 파일을 url을 통해 접근 가능
 
 // app.get is for routing
 app.get('/', (req, res) => {
@@ -18,33 +19,40 @@ app.get('/', (req, res) => {
     var description = 'Hello, Node.js';
     var list = template.list(filelist);
     var html = template.HTML(title, list,
-      `<h2>${title}</h2>${description}`,
+      `
+      <h2>${title}</h2>${description}
+      <img src="/images/hello.jpg" style="width: 300px; display: block; margin-top: 5px;">
+      `,
       `<a href="/create">create</a>`
     );
     res.send(html);
   });
 })
 
-app.get('/page/:pageId', (req, res) => {
+app.get('/page/:pageId', (req, res, next) => {
   fs.readdir('./data', function(err, filelist) {
     var filteredId = path.parse(req.params.pageId).base;
     fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
-      var title = req.params.pageId;
-      var sanitizedTitle = sanitizeHtml(title);
-      var sanitizedDescription = sanitizeHtml(description, {
-        allowedTags:['h1']
-      });
-      var list = template.list(filelist);
-      var html = template.HTML(sanitizedTitle, list,
-        `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
-        ` <a href="/create">create</a>
-          <a href="/update/${sanitizedTitle}">update</a>
-          <form action="/delete_process" method="post">
-            <input type="hidden" name="id" value="${sanitizedTitle}">
-            <input type="submit" value="delete">
-          </form>`
-      );
-      res.send(html);
+      if (err) {
+        next(err);
+      } else {
+        var title = req.params.pageId;
+        var sanitizedTitle = sanitizeHtml(title);
+        var sanitizedDescription = sanitizeHtml(description, {
+          allowedTags:['h1']
+        });
+        var list = template.list(filelist);
+        var html = template.HTML(sanitizedTitle, list,
+          `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
+          ` <a href="/create">create</a>
+            <a href="/update/${sanitizedTitle}">update</a>
+            <form action="/delete_process" method="post">
+              <input type="hidden" name="id" value="${sanitizedTitle}">
+              <input type="submit" value="delete">
+            </form>`
+        );
+        res.send(html);
+      }
     });
   });
 })
@@ -143,6 +151,16 @@ app.post('/delete_process', (req, res) => {
     */
     res.redirect(`/`);
   })
+})
+
+app.use(function(req, res, next) {
+  res.status(404).send('Sorry cant find that!');
+});
+
+// error handler
+app.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
 })
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
