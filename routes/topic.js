@@ -7,7 +7,7 @@ var sanitizeHtml = require('sanitize-html');
 
 router.get('/create', (req, res) => {
     fs.readdir('./data', function(err, filelist) {
-        var title = 'WEB - create';
+        //var title = 'WEB - create';
         var list = template.list(filelist);
         var html = template.HTML(title, list, `
             <form action="/topic/create_process" method="post">
