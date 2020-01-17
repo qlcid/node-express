@@ -2,15 +2,19 @@ const express = require('express');             // node framework를 사용해 �
 const app = express();
 var bodyParser = require('body-parser');        // node middleware request data의 body로부터 파라미터를 편리하게 추출
 var compression = require('compression');       // node middleware 데이터 압축
-var fs = require('fs');
 
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
+
+// db 연동
+var sequelize = require('./models').sequelize;
+sequelize.sync();
 
 app.use(bodyParser.urlencoded({ extended: false }));    // request 객체에 body 속성을 만들어줌
 app.use(compression());                                 // data 압축
 app.use(express.static('public'));                      // static file, express.static('경로') 경로에 있는 파일을 url을 통해 접근 가능
 
+// route
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);
 

@@ -106,7 +106,7 @@ router.get('/:pageId', (req, res, next) => {
         var filteredId = path.parse(req.params.pageId).base;
         fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
             if (err) {
-            next(err);
+                next(err);
             } else {
             var title = req.params.pageId;
             var sanitizedTitle = sanitizeHtml(title);
