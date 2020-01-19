@@ -5,6 +5,8 @@ var template = require('../lib/template.js');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 
+var { Topic } = require('../models');
+
 router.get('/create', (req, res) => {
     fs.readdir('./data', function(err, filelist) {
         //var title = 'WEB - create';
@@ -75,18 +77,18 @@ router.get('/update/:pageId', (req, res) => {
     });  
 })
   
-  router.post('/update_process', (req, res) => {
+router.post('/update_process', (req, res) => {
     var post = req.body;
     var id = post.id;
     var title = post.title;
     var description = post.description;
     fs.rename(`data/${id}`, `data/${title}`, function(err) {
-      fs.writeFile(`data/${title}`, description, 'utf8', function(err) {
+        fs.writeFile(`data/${title}`, description, 'utf8', function(err) {
         res.writeHead(302, { Location: `/topic/${title}` });
         res.end();
-      })
+        })
     });
-  })
+})
   
 router.post('/delete_process', (req, res) => {
     var post = req.body;
@@ -98,35 +100,61 @@ router.post('/delete_process', (req, res) => {
       res.end();
       */
       res.redirect(`/`);
-    })
+    });
 })
   
 router.get('/:pageId', (req, res, next) => {
-    fs.readdir('./data', function(err, filelist) {
-        var filteredId = path.parse(req.params.pageId).base;
-        fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
-            if (err) {
-                next(err);
-            } else {
-            var title = req.params.pageId;
-            var sanitizedTitle = sanitizeHtml(title);
-            var sanitizedDescription = sanitizeHtml(description, {
-                allowedTags:['h1']
-            });
-            var list = template.list(filelist);
-            var html = template.HTML(sanitizedTitle, list,
-                `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
+    Topic.findAll({
+        attributes: ['topic_id', 'title'],
+        raw: true
+    }).then((results) => {
+        Topic.findOne({
+            attributes: ['topic_id', 'title', 'description'], 
+            where: { topic_id: req.params.pageId }
+        }).then((result) => {
+            var title = result.title;
+            var description = result.description;
+            var list = template.list(results);
+            var html = template.HTML(title, list,
+                `<h2>${title}</h2>${description}`,
                 ` <a href="/topic/create">create</a>
-                <a href="/topic/update/${sanitizedTitle}">update</a>
+                <a href="/topic/update/${title}">update</a>
                 <form action="/topic/delete_process" method="post">
-                    <input type="hidden" name="id" value="${sanitizedTitle}">
+                    <input type="hidden" name="id" value="${title}">
                     <input type="submit" value="delete">
-                </form>`
-            );
+                </form>`);
             res.send(html);
-            }
+        }).catch(function(err) {
+            console.log(err);
         });
+    }).catch(function(err) {
+        console.log(err);
     });
+    // fs.readdir('./data', function(err, filelist) {
+    //     var filteredId = path.parse(req.params.pageId).base;
+    //     fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
+    //         if (err) {
+    //             next(err);
+    //         } else {
+    //         var title = req.params.pageId;
+    //         var sanitizedTitle = sanitizeHtml(title);
+    //         var sanitizedDescription = sanitizeHtml(description, {
+    //             allowedTags:['h1']
+    //         });
+    //         var list = template.list(filelist);
+    //         var html = template.HTML(sanitizedTitle, list,
+    //             `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
+    //             ` <a href="/topic/create">create</a>
+    //             <a href="/topic/update/${sanitizedTitle}">update</a>
+    //             <form action="/topic/delete_process" method="post">
+    //                 <input type="hidden" name="id" value="${sanitizedTitle}">
+    //                 <input type="submit" value="delete">
+    //             </form>`
+    //         );
+    //         res.send(html);
+    //         }
+    //     });
+    // });
 })
 
 module.exports = router;
