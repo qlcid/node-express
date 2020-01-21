@@ -3,7 +3,6 @@ const router = express.Router();
 var fs = require('fs');
 var template = require('../lib/template.js');
 var path = require('path');
-var sanitizeHtml = require('sanitize-html');
 
 var { Topic } = require('../models');
 
@@ -84,6 +83,40 @@ router.post('/create_process', (req, res) => {
 })
   
 router.get('/update/:pageId', (req, res) => {
+    Topic.findAll({
+        attributes: ['topic_id', 'title'],
+        raw: true
+    }).then((results) => {
+        Topic.findOne({
+            attributes: ['topic_id', 'title', 'description'], 
+            where: { topic_id: req.params.pageId }
+        }).then((result) => {
+            var title = result.title;
+            var description = result.description;
+            var list = template.list(results);
+            var html = template.HTML(title, list,
+            `
+            <form action="/topic/update_process" method="post">
+                <input type="hidden" name="id" value="${result.topic_id}">
+                <p><input type="text" name="title" placeholder="title" value="${title}"></p>
+                <p>
+                <textarea name="description" placeholder="description">${description}</textarea>
+                </p>
+                <p>
+                <input type="submit">
+                </p>
+            </form>
+            `,
+            `<a href="/topic/create">create</a> <a href="/topic/update/${result.topic_id}">update</a>`
+            );
+            res.send(html);
+        }).catch(function(err) {
+            console.log(err);
+        });
+    }).catch(function(err) {
+        console.log(err);
+    });
+    /*
     fs.readdir('./data', function(err, filelist) {
         var filteredId = path.parse(req.params.pageId).base;
         fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
@@ -107,9 +140,24 @@ router.get('/update/:pageId', (req, res) => {
             res.send(html);
         });
     });  
+    */
 })
   
 router.post('/update_process', (req, res) => {
+    Topic.update({
+        title: req.body.title,
+        description: req.body.description
+      }, {
+        where: { topic_id: req.body.id }
+    }).then(() => {
+        console.log('topic_update_success');
+        res.writeHead(302, { Location: `/topic/${req.body.id}` });
+        res.end();
+    });
+    // .catch(function(err) {
+    //     console.log(err);
+    // });
+    /*
     var post = req.body;
     var id = post.id;
     var title = post.title;
@@ -120,6 +168,7 @@ router.post('/update_process', (req, res) => {
         res.end();
         })
     });
+    */
 })
   
 router.post('/delete_process', (req, res) => {
@@ -148,17 +197,19 @@ router.get('/:pageId', (req, res, next) => {
         attributes: ['topic_id', 'title'],
         raw: true
     }).then((results) => {
+        console.log("--------------------" + req.params.pageId);
         Topic.findOne({
             attributes: ['topic_id', 'title', 'description'], 
             where: { topic_id: req.params.pageId }
         }).then((result) => {
+            console.log("--------------------" + req.params.pageId);
             var title = result.title;
             var description = result.description;
             var list = template.list(results);
             var html = template.HTML(title, list,
                 `<h2>${title}</h2>${description}`,
                 ` <a href="/topic/create">create</a>
-                <a href="/topic/update/${title}">update</a>
+                <a href="/topic/update/${result.topic_id}">update</a>
                 <form action="/topic/delete_process" method="post">
                     <input type="hidden" name="id" value="${result.topic_id}">
                     <input type="submit" value="delete">
