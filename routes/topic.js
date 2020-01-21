@@ -123,16 +123,24 @@ router.post('/update_process', (req, res) => {
 })
   
 router.post('/delete_process', (req, res) => {
+    Topic.destroy({
+        where: { topic_id: req.body.id }
+    }).then(() => {
+        console.log('topic_delete_success');
+        res.redirect(`/`);
+    }).catch(function(err) {
+        console.log(err);
+    });
+    /*
     var post = req.body;
     var id = post.id;
     var filteredId = path.parse(id).base;
     fs.unlink(`data/${filteredId}`, function(err) {
-      /*
-      res.writeHead(302, { Location: `/` });
-      res.end();
-      */
+      // res.writeHead(302, { Location: `/` });
+      // res.end();
       res.redirect(`/`);
     });
+    */
 })
   
 router.get('/:pageId', (req, res, next) => {
@@ -152,7 +160,7 @@ router.get('/:pageId', (req, res, next) => {
                 ` <a href="/topic/create">create</a>
                 <a href="/topic/update/${title}">update</a>
                 <form action="/topic/delete_process" method="post">
-                    <input type="hidden" name="id" value="${title}">
+                    <input type="hidden" name="id" value="${result.topic_id}">
                     <input type="submit" value="delete">
                 </form>`);
             res.send(html);
