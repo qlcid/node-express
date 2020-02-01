@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
+        user_pwd: {
+            type: DataTypes.STRING(20),
+            allowNull: false,
+        },
         name: {
             type: DataTypes.STRING(20),
             allowNull: false
@@ -14,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         profile: {
             type: DataTypes.STRING(100),
             defaultValue: null
-        },
+        }
     }, {
         timestamps: false,
         charset: 'utf8'

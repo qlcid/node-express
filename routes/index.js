@@ -6,11 +6,15 @@ var { Topic } = require('../models');
 
 // app.get is for routing
 router.get('/', (req, res) => {
+  if (!req.session.is_logined) {
+      req.session.is_logined = false;
+  }
+
   Topic.findAll({
     attributes: ['topic_id', 'title'],
     raw: true
   }).then((result) => {
-    console.log("0---------------" + result[0].topic_id);
+    // console.log("---------------" + result[0].topic_id);
     var title = 'Welcome';
     var description = 'Hello, Node.js';
     var list = template.list(result);

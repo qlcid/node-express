@@ -2,9 +2,12 @@ const express = require('express');             // node framework를 사용해 �
 const app = express();
 var bodyParser = require('body-parser');        // node middleware request data의 body로부터 파라미터를 편리하게 추출
 var compression = require('compression');       // node middleware 데이터 압축
+var session = require('express-session');       // node middleware session
+var FileStore = require('session-file-store')(session);       // node middleware session을 파일에 저장
 
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
+var authRouter = require('./routes/auth');
 
 // db 연동
 var sequelize = require('./models').sequelize;
@@ -14,9 +17,18 @@ app.use(bodyParser.urlencoded({ extended: false }));    // request 객체에 bod
 app.use(compression());                                 // data 압축
 app.use(express.static('public'));                      // static file, express.static('경로') 경로에 있는 파일을 url을 통해 접근 가능
 
+// session
+app.use(session({
+  secret: 'asdf',
+  resave: false,
+  saveUninitialized: true,
+  store: new FileStore()
+}));
+
 // route
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
