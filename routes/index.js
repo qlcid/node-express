@@ -1,15 +1,12 @@
 const express = require('express');             // node framework를 사용해 코드를 간단히
 const router = express.Router();
 var template = require('../lib/template.js');
+var auth = require('../lib/auth');              // session login check
 
 var { Topic } = require('../models');
 
 // app.get is for routing
 router.get('/', (req, res) => {
-  if (!req.session.is_logined) {
-      req.session.is_logined = false;
-  }
-
   Topic.findAll({
     attributes: ['topic_id', 'title'],
     raw: true
@@ -23,7 +20,8 @@ router.get('/', (req, res) => {
         <h2>${title}</h2>${description}
         <img src="/images/hello.jpg" style="width: 300px; display: block; margin-top: 5px;">
         `,
-        `<a href="/topic/create">create</a>`);
+        `<a href="/topic/create">create</a>`,
+        auth.statusUI(req, res));
     res.send(html);
   }).catch(function(err) {
     console.log(err);

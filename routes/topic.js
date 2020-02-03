@@ -1,6 +1,7 @@
 const express = require('express');             // node framework를 사용해 코드를 간단히
 const router = express.Router();
 var template = require('../lib/template.js');
+var auth = require('../lib/auth');              // session login check
 
 var { Topic } = require('../models');
 
@@ -21,7 +22,7 @@ router.get('/create', (req, res) => {
                 <input type="submit">
             </p>
             </form>
-            `, '');
+            `, '', auth.statusUI(req, res));
             res.send(html);
     }).catch(function(err) {
         console.log(err);
@@ -67,8 +68,8 @@ router.get('/update/:pageId', (req, res) => {
                 </p>
             </form>
             `,
-            `<a href="/topic/create">create</a> <a href="/topic/update/${result.topic_id}">update</a>`
-            );
+            `<a href="/topic/create">create</a> <a href="/topic/update/${result.topic_id}">update</a>`,
+            auth.statusUI(req, res));
             res.send(html);
         }).catch(function(err) {
             console.log(err);
@@ -123,7 +124,7 @@ router.get('/:pageId', (req, res, next) => {
                 <form action="/topic/delete_process" method="post">
                     <input type="hidden" name="id" value="${result.topic_id}">
                     <input type="submit" value="delete">
-                </form>`);
+                </form>`, auth.statusUI(req, res));
             res.send(html);
         }).catch(function(err) {
             console.log(err);
