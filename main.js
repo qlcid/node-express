@@ -2,9 +2,14 @@ const express = require('express');             // node framework를 사용해 �
 const app = express();
 var bodyParser = require('body-parser');        // node middleware, request data의 body로부터 파라미터를 편리하게 추출
 var compression = require('compression');       // node middleware, 데이터 압축
-var session = require('express-session');       // node middleware, session
-var FileStore = require('session-file-store')(session);       // node middleware, session을 파일에 저장
+// var FileStore = require('session-file-store')(session);       // node middleware, session을 파일에 저장
 
+// passport for login
+var session = require('express-session');       // node middleware, session
+var passport = require('passport');             // node middleware, passport
+var passportConfig = require('./passport');     // passport setting module
+
+// router
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
 var authRouter = require('./routes/auth');
@@ -13,17 +18,19 @@ var authRouter = require('./routes/auth');
 var sequelize = require('./models').sequelize;
 sequelize.sync();
 
-app.use(bodyParser.urlencoded({ extended: false }));    // request 객체에 body 속성을 만들어줌
-app.use(compression());                                 // data 압축
-app.use(express.static('public'));                      // static file, express.static('경로') 경로에 있는 파일을 url을 통해 접근 가능
-
 // session
 app.use(session({
   secret: 'asdf',
   resave: false,
-  saveUninitialized: true,
-  store: new FileStore()
+  saveUninitialized: true
 }));
+app.use(passport.initialize());                         // passport 구동
+app.use(passport.session());                            // session 연결
+passportConfig();                                       // passport setting module 적용
+
+app.use(bodyParser.urlencoded({ extended: false }));    // request 객체에 body 속성을 만들어줌
+app.use(compression());                                 // data 압축
+app.use(express.static('public'));                      // static file, express.static('경로') 경로에 있는 파일을 url을 통해 접근 가능
 
 // route
 app.use('/', indexRouter);

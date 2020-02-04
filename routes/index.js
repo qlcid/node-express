@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
     var html = template.HTML(title, list,
         `
         <h2>${title}</h2>${description}
-        <img src="/images/hello.jpg" style="width: 300px; display: block; margin-top: 5px;">
+        <img src="/images/hello.jpg" style="width: 500px; display: block; margin-top: 5px;">
         `,
         `<a href="/topic/create">create</a>`,
         auth.statusUI(req, res));

@@ -1,6 +1,7 @@
 const express = require('express');             // node framework를 사용해 코드를 간단히
 const router = express.Router();
 var template = require('../lib/template.js');
+var passport = require('passport');             // node middleware, passport
 
 var { Topic } = require('../models');
 var { User } = require('../models');
@@ -27,6 +28,12 @@ router.get('/login', (req, res) => {
     });
 });
 
+router.post('/login_process', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/auth/login'
+}));
+
+/*
 router.post('/login_process', (req, res) => {
     User.findOne({
         attributes: ['user_pwd', 'name', 'profile'],
@@ -50,6 +57,7 @@ router.post('/login_process', (req, res) => {
         console.log(err);
     });
 });
+*/
 
 router.get('/logout', (req, res) => {
     req.session.destroy(function(err) {
