@@ -1,9 +1,9 @@
 const express = require('express');             // node framework를 사용해 코드를 간단히
 const app = express();
-var bodyParser = require('body-parser');        // node middleware request data의 body로부터 파라미터를 편리하게 추출
-var compression = require('compression');       // node middleware 데이터 압축
-var session = require('express-session');       // node middleware session
-var FileStore = require('session-file-store')(session);       // node middleware session을 파일에 저장
+var bodyParser = require('body-parser');        // node middleware, request data의 body로부터 파라미터를 편리하게 추출
+var compression = require('compression');       // node middleware, 데이터 압축
+var session = require('express-session');       // node middleware, session
+var FileStore = require('session-file-store')(session);       // node middleware, session을 파일에 저장
 
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');

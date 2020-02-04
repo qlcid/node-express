@@ -41,8 +41,10 @@ router.post('/login_process', (req, res) => {
         } else {
             req.session.is_logined = true;
             req.session.nickname = user.name;
-            res.redirect(`/`);
-            console.log('login success!');
+            req.session.save(() => {                // memory에 저장된 data를 저장소에 저장할 때 저장소가 느릴 경우를 대비해 저장 후 콜백함수
+                res.redirect(`/`);
+                console.log('login success!');
+            });
         }
     }).catch(function(err) {
         console.log(err);
