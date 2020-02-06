@@ -4,7 +4,7 @@ var template = require('../lib/template.js');
 var passport = require('passport');             // node middleware, passport
 
 var { Topic } = require('../models');
-var { User } = require('../models');
+// var { User } = require('../models');
 
 router.get('/login', (req, res) => {
     Topic.findAll({
@@ -33,6 +33,13 @@ router.post('/login_process', passport.authenticate('local', {
     failureRedirect: '/auth/login'
 }));
 
+router.get('/logout', (req, res) => {
+    req.logout();
+    req.session.save(function(){
+        res.redirect('/');
+    });
+});
+
 /*
 router.post('/login_process', (req, res) => {
     User.findOne({
@@ -58,11 +65,5 @@ router.post('/login_process', (req, res) => {
     });
 });
 */
-
-router.get('/logout', (req, res) => {
-    req.session.destroy(function(err) {
-        res.redirect(`/`);
-    });
-});
   
 module.exports = router;

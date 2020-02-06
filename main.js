@@ -2,10 +2,10 @@ const express = require('express');             // node framework를 사용해 �
 const app = express();
 var bodyParser = require('body-parser');        // node middleware, request data의 body로부터 파라미터를 편리하게 추출
 var compression = require('compression');       // node middleware, 데이터 압축
-// var FileStore = require('session-file-store')(session);       // node middleware, session을 파일에 저장
 
 // passport for login
 var session = require('express-session');       // node middleware, session
+var FileStore = require('session-file-store')(session);       // node middleware, session을 파일에 저장
 var passport = require('passport');             // node middleware, passport
 var passportConfig = require('./passport');     // passport setting module
 
@@ -22,7 +22,8 @@ sequelize.sync();
 app.use(session({
   secret: 'asdf',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  store: new FileStore()
 }));
 app.use(passport.initialize());                         // passport 구동
 app.use(passport.session());                            // session 연결
