@@ -99,7 +99,7 @@ router.post('/delete_process', (req, res) => {
         where: { topic_id: req.body.id }
     }).then(() => {
         console.log('topic_delete_success');
-        res.redirect(`/`);
+        res.redirect('/');
     }).catch(function(err) {
         console.log(err);
     });

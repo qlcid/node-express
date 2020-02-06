@@ -4,8 +4,9 @@ var template = require('../lib/template.js');
 var passport = require('passport');             // node middleware, passport
 
 var { Topic } = require('../models');
-// var { User } = require('../models');
+var { User } = require('../models');
 
+// login router
 router.get('/login', (req, res) => {
     Topic.findAll({
         attributes: ['topic_id', 'title'],
@@ -22,7 +23,7 @@ router.get('/login', (req, res) => {
                 </p>
             </form>
             `, '');
-            res.send(html);
+        res.send(html);
     }).catch(function(err) {
         console.log(err);
     });
@@ -33,37 +34,66 @@ router.post('/login_process', passport.authenticate('local', {
     failureRedirect: '/auth/login'
 }));
 
+// register router
+router.get('/register', (req, res) => {
+    Topic.findAll({
+        attributes: ['topic_id', 'title'],
+        raw: true
+    }).then((results) => {
+        var title = 'WEB - login';
+        var list = template.list(results);
+        var html = template.HTML(title, list, `
+            <form action="/auth/register_process" method="post">
+                <p><input type="text" name="id" placeholder="id" required></p>
+                <p><input type="password" name="pwd" placeholder="password" required></p>
+                <p><input type="text" name="name" placeholder="name" required></p>
+                <p><input type="text" name="profile" placeholder="profile"></p>
+                <p>
+                <input type="submit" value="register">
+                </p>
+            </form>
+            `, '');
+            res.send(html);
+    }).catch(function(err) {
+        console.log(err);
+    });
+});
+
+router.post('/register_process', (req, res) => {
+    var id = req.body.id;
+    var pwd = req.body.pwd;
+    var name = req.body.name;
+    var profile = req.body.profile;
+
+    User.findOne({
+        attributes: ['user_id'], 
+        where: { user_id: id }
+     }).then((result) => {
+        if (!result) {
+            User.create({
+                user_id: id,
+                user_pwd: pwd,
+                name: name,
+                profile: profile
+            }).then(() => {
+                console.log('register_success');
+                res.redirect('/');
+            });
+        } else {
+            console.log(result.user_id + "is already existing id!");
+            res.redirect('/auth/register');
+        }
+     }).catch(function(err) {
+        console.log(err);
+     });
+});
+
+// logout router
 router.get('/logout', (req, res) => {
     req.logout();
     req.session.save(function(){
         res.redirect('/');
     });
 });
-
-/*
-router.post('/login_process', (req, res) => {
-    User.findOne({
-        attributes: ['user_pwd', 'name', 'profile'],
-        where: { user_id: req.body.id }
-    }).then((user) => {
-        console.log('login_process_success');
-
-        if (user == null || user.user_pwd != req.body.pwd) {
-            req.session.is_logined = false;
-            res.send("login fail!");
-            console.log("login fail!");
-        } else {
-            req.session.is_logined = true;
-            req.session.nickname = user.name;
-            req.session.save(() => {                // memory에 저장된 data를 저장소에 저장할 때 저장소가 느릴 경우를 대비해 저장 후 콜백함수
-                res.redirect(`/`);
-                console.log('login success!');
-            });
-        }
-    }).catch(function(err) {
-        console.log(err);
-    });
-});
-*/
   
 module.exports = router;
