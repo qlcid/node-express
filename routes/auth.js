@@ -40,7 +40,7 @@ router.get('/register', (req, res) => {
         attributes: ['topic_id', 'title'],
         raw: true
     }).then((results) => {
-        var title = 'WEB - login';
+        var title = 'WEB - register';
         var list = template.list(results);
         var html = template.HTML(title, list, `
             <form action="/auth/register_process" method="post">
@@ -68,7 +68,7 @@ router.post('/register_process', (req, res) => {
     User.findOne({
         attributes: ['user_id'], 
         where: { user_id: id }
-     }).then((result) => {
+    }).then((result) => {
         if (!result) {
             User.create({
                 user_id: id,
@@ -83,9 +83,9 @@ router.post('/register_process', (req, res) => {
             console.log(result.user_id + "is already existing id!");
             res.redirect('/auth/register');
         }
-     }).catch(function(err) {
+    }).catch(function(err) {
         console.log(err);
-     });
+    });
 });
 
 // logout router

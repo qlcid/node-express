@@ -1,0 +1,4 @@
+node_modules/
+sessions
+nodejs/sessinos
+config/google.js
