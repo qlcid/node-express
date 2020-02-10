@@ -1,4 +1,5 @@
 node_modules/
 sessions
 nodejs/sessinos
-config/google.js
+config/google.json
+config/facebook.json 

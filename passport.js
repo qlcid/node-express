@@ -1,5 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 
 var { User } = require('./models');
 
@@ -31,6 +32,17 @@ module.exports = () => {
                 }
                 return done(null, user);
             });
+        }
+    ));
+
+    var facebookCredentials = require('./config/facebook.json');
+    passport.use(new FacebookStrategy(facebookCredentials,
+      function(accessToken, refreshToken, profile, done) {
+          console.log('FacebookStrategy', accessToken, refreshToken, profile);
+        // User.findOrCreate(..., function(err, user) {
+        //   if (err) { return done(err); }
+        //   done(null, user);
+        // });
         }
     ));
 };

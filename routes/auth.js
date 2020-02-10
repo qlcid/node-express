@@ -34,6 +34,14 @@ router.post('/login_process', passport.authenticate('local', {
     failureRedirect: '/auth/login'
 }));
 
+// login with Facebook
+router.get('/facebook', passport.authenticate('facebook'));
+
+router.get('/facebook/callback', passport.authenticate('facebook', {
+    successRedirect: '/',
+    failureRedirect: '/auth/login'
+}));
+
 // register router
 router.get('/register', (req, res) => {
     Topic.findAll({
