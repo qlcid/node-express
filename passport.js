@@ -1,6 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;   // google login api
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;   // google login api
 
 var googleCredentials = require('./config/google.json');
 var { User } = require('./models');
@@ -41,9 +41,27 @@ module.exports = () => {
         clientSecret: googleCredentials.web.client_secret,
         callbackURL: googleCredentials.web.redirect_uris[0]
     }, function(accessToken, refreshToken, profile, done) {
-        console.log('GoogleStrategy', accessToken, refreshToken, profile);
-        User.findOrCreate({ googleId: profile.id }, function (err, user) {
-            return done(err, user);
+        var email = profile.emails[0].value;
+        User.findOne({
+            where: { user_id: email }
+        }).then((user) => {
+            console.log('check if the user is already registered');
+            if (!user) {                            // the email is not registered
+                User.create({
+                    user_id: email,
+                    name: profile.displayName,
+                    google_id: profile.id
+                }).then((user) => {
+                    done(null, user);
+                });
+            } else {                                // the email is already registered
+                User.update({
+                    google_id: profile.id
+                }, {
+                    where: { user_id: email }
+                });
+                done(null, user);
+            }            
         });
     }));
 };

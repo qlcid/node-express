@@ -2,14 +2,12 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('user', {
         user_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(30),
             allowNull: false,
-            autoIncrement: true,
             primaryKey: true
         },
         user_pwd: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
+            type: DataTypes.STRING(20)
         },
         name: {
             type: DataTypes.STRING(20),
@@ -18,7 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         profile: {
             type: DataTypes.STRING(100),
             defaultValue: null
-        }
+        },
+        google_id: {
+            type: DataTypes.STRING(40),
+            defaultValue: null
+        } 
     }, {
         timestamps: false,
         charset: 'utf8'

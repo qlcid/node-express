@@ -83,7 +83,7 @@ router.post('/update_process', (req, res) => {
     Topic.update({
         title: req.body.title,
         description: req.body.description
-      }, {
+    }, {
         where: { topic_id: req.body.id }
     }).then(() => {
         console.log('topic_update_success');
