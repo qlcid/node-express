@@ -1,3 +1,8 @@
 node_modules/
 sessions
+<<<<<<< HEAD
 nodejs/sessinos
+=======
+nodejs/sessinos
+config/google.json
+>>>>>>> google_login

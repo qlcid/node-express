@@ -34,6 +34,16 @@ router.post('/login_process', passport.authenticate('local', {
     failureRedirect: '/auth/login'
 }));
 
+// login with Google
+router.get('/google', passport.authenticate('google', { 
+    scope: ['profile', 'email'] 
+}));
+
+router.get('/google/callback', passport.authenticate('google', {
+    successRedirect: '/',
+    failureRedirect: '/auth/login'
+}));
+
 // register router
 router.get('/register', (req, res) => {
     Topic.findAll({
@@ -66,22 +76,36 @@ router.post('/register_process', (req, res) => {
     var profile = req.body.profile;
 
     User.findOne({
-        attributes: ['user_id'], 
         where: { user_id: id }
-    }).then((result) => {
-        if (!result) {
+    }).then((user) => {
+        if (!user) {                                // the id is not registered
             User.create({
                 user_id: id,
                 user_pwd: pwd,
                 name: name,
                 profile: profile
-            }).then(() => {
+            }).then((user) => {
                 console.log('register_success');
-                res.redirect('/');
+                req.login(user, function(err) {
+                    return res.redirect('/');
+                });
             });
-        } else {
-            console.log(result.user_id + "is already existing id!");
-            res.redirect('/auth/register');
+        } else {                                    // the id is already registered
+            console.log(user.user_id + " is already existing id!");
+            if (user.google_id) {                   // register after login with Google
+                User.update({
+                    user_pwd: pwd,
+                    profile: profile
+                }, {
+                    where: { user_id: id }
+                }).then(() => {
+                    req.login(user, function(err) {
+                        return res.redirect('/');
+                    });
+                });
+            } else {
+                res.redirect('/auth/register');
+            }
         }
     }).catch(function(err) {
         console.log(err);
@@ -91,7 +115,7 @@ router.post('/register_process', (req, res) => {
 // logout router
 router.get('/logout', (req, res) => {
     req.logout();
-    req.session.save(function(){
+    req.session.save(function() {
         res.redirect('/');
     });
 });
