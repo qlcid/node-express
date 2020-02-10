@@ -21,8 +21,8 @@ sequelize.sync();
 // session
 app.use(session({
   secret: 'asdf',
-  resave: false,
-  saveUninitialized: true,
+  resave: true,
+  saveUninitialized: false,
   store: new FileStore()
 }));
 app.use(passport.initialize());                         // passport 구동

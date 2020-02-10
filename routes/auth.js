@@ -34,6 +34,16 @@ router.post('/login_process', passport.authenticate('local', {
     failureRedirect: '/auth/login'
 }));
 
+// login with Google
+router.get('/google', passport.authenticate('google', { 
+    scope: ['profile'] 
+}));
+
+// router.get('/google/callback', passport.authenticate('google', {
+//     successRedirect: '/',
+//     failureRedirect: '/auth/login'
+// }));
+
 // register router
 router.get('/register', (req, res) => {
     Topic.findAll({
@@ -91,7 +101,7 @@ router.post('/register_process', (req, res) => {
 // logout router
 router.get('/logout', (req, res) => {
     req.logout();
-    req.session.save(function(){
+    req.session.save(function() {
         res.redirect('/');
     });
 });
