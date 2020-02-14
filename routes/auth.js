@@ -91,7 +91,6 @@ router.post('/register_process', (req, res) => {
                 });
             });
         } else {                                    // the id is already registered
-            console.log(user.user_id + " is already existing id!");
             if (user.google_id) {                   // register after login with Google
                 User.update({
                     user_pwd: pwd,
@@ -104,6 +103,7 @@ router.post('/register_process', (req, res) => {
                     });
                 });
             } else {
+                console.log(user.user_id + " is already existing id!");
                 res.redirect('/auth/register');
             }
         }

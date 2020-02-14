@@ -20,7 +20,6 @@ module.exports = () => {
         usernameField: 'id',
         passwordField: 'pwd'
     }, (user_id, user_pwd, done) => {
-        console.log('LocalStrategy', user_id, user_pwd);
         User.findOne({
             where: { user_id: user_id }
         }).then((user) => {
